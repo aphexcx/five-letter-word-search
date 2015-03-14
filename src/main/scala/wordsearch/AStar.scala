@@ -14,9 +14,9 @@ object AStar {
   }
 
   def oneLetterOff(w: Word): Seq[Word] =
-    0 until w.length flatMap { i =>
-      'a' to 'z' withFilter (_ != w(i)) map (w.updated(i, _))
-    }
+    (0 until w.length).par flatMap { i =>
+      ('a' to 'z').par withFilter (_ != w(i)) map (w.updated(i, _))
+    } seq
 
   def reconstructPath(current: Word, came_from: Map[Word, Word]): List[Word] = {
     def go(current: Word): List[Word] = {
@@ -37,6 +37,7 @@ object AStar {
 import wordsearch.AStar.Word
 
 case class AStar(start: Word, goal: Word) {
+
   import wordsearch.AStar._
 
   type PriorityQueue = Set[Word]
