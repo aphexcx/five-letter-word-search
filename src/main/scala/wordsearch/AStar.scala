@@ -9,17 +9,20 @@ object AStar {
 
   lazy val fiveLetterWords: Set[String] = Source.fromFile(getClass.getResource("/sgbwords.txt").getPath).getLines().toSet
 
-  def valid(w: Word): Boolean = fiveLetterWords.contains(w)
+  def isValid(w: Word): Boolean = fiveLetterWords.contains(w)
 
+  // All valid words that are one letter off from the given word.
   def neighbors(w: Word): Set[Word] = {
     oneLetterOff(w).toSet intersect fiveLetterWords
   }
 
+  // All possible words that are one letter off from the given word.
   def oneLetterOff(w: Word): Seq[Word] =
     (0 until w.length).par flatMap { i =>
       ('a' to 'z').par withFilter (_ != w(i)) map (w.updated(i, _))
     } seq
 
+  //A list that traces the lineage of a word given an ancestry mapping.
   def reconstructPath(current: Word, came_from: Map[Word, Word]): List[Word] = {
     def go(current: Word): List[Word] = {
       if (came_from contains current)
@@ -31,7 +34,7 @@ object AStar {
     go(current)
   }
 
-  // Hamming distance; the number of letters that differ between s and t
+  // Hamming distance; the number of letters that differ between s and t.
   def distance(s: Word, t: Word): Int = (s zip t).par count (x => x._1 != x._2)
 
 }
@@ -40,10 +43,11 @@ import AStar.Word
 
 case class AStar(start: Word, goal: Word) {
   import AStar._
-  require(valid(start) && valid(goal))
+  require(isValid(start) && isValid(goal))
 
   type PriorityQueue = Set[Word]
 
+  // A* Graph Search.
   def search: List[Word] = {
     @tailrec
     def go(openset: PriorityQueue, closedset: Set[Word], parents: Map[Word, Word]): List[Word] = {
@@ -51,14 +55,15 @@ case class AStar(start: Word, goal: Word) {
         reconstructPath(goal, parents) reverse
       }
       else {
-        // Pull out the best node n in OPEN (the node with the lowest f value) and examine it.
+        // Pull out the best word in OPEN (the node with the lowest f value) and examine it.
         val current = openset.min(Ordering.by(f(_: Word, parents)))
-
-        // If n is the goal, then we’re done.
+        
         if (current == goal) {
+          // If it's the goal word, then we’re done.
           reconstructPath(goal, parents) reverse
         }
         else {
+          //Mutable vars to hold modified openset and parents
           var opensetVar = openset - current
           var parentsVar = parents
 
@@ -72,10 +77,8 @@ case class AStar(start: Word, goal: Word) {
             }
             // if neighbor not in OPEN and neighbor not in CLOSED:
             if (!opensetVar.contains(neighbor) && !closedset.contains(neighbor)) {
-              // set g(neighbor) to cost
               // add neighbor to OPEN
               opensetVar += neighbor
-              // set priority queue rank to g(neighbor) + h(neighbor)
               // set neighbor's parent to current
               parentsVar = parentsVar.updated(neighbor, current)
             }
@@ -91,7 +94,7 @@ case class AStar(start: Word, goal: Word) {
       Map())
   }
 
-  // Score of each word
+  // Score of each word.
   def f(x: Word, parents: Map[Word, Word]): Int = g(x, parents) + h(x)
 
   // Cost from start along best known path.
