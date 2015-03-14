@@ -9,6 +9,8 @@ object AStar {
 
   lazy val fiveLetterWords: Set[String] = Source.fromFile(getClass.getResource("/sgbwords.txt").getPath).getLines().toSet
 
+  def valid(w: Word): Boolean = fiveLetterWords.contains(w)
+
   def neighbors(w: Word): Set[Word] = {
     oneLetterOff(w).toSet intersect fiveLetterWords
   }
@@ -34,11 +36,11 @@ object AStar {
 
 }
 
-import wordsearch.AStar.Word
+import AStar.Word
 
 case class AStar(start: Word, goal: Word) {
-
-  import wordsearch.AStar._
+  import AStar._
+  require(valid(start) && valid(goal))
 
   type PriorityQueue = Set[Word]
 

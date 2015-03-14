@@ -84,6 +84,9 @@ class AStarSpec extends FunSpec with Matchers {
           // Note! The dict I used let AStar find a shorter path than ("smart", "start", "stark", "stack", "slack", "black", "blank", "bland", "brand", "braid", "brain")
         }
       }
+      describe("throws an exception when invalid words are supplied") {
+        an[IllegalArgumentException] shouldBe thrownBy(AStar("smarf", "ggggg"))
+      }
     }
   }
 }
