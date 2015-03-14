@@ -30,7 +30,7 @@ object AStar {
   }
 
   // Hamming distance; the number of letters that differ between s and t
-  def distance(s: Word, t: Word): Int = s zip t count (x => x._1 != x._2)
+  def distance(s: Word, t: Word): Int = (s zip t).par count (x => x._1 != x._2)
 
 }
 
