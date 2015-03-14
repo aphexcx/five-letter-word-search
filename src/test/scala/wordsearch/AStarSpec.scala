@@ -1,5 +1,7 @@
+package wordsearch
+
 import org.scalatest.{FunSpec, Matchers}
-import wordsearch.Immutable._
+import wordsearch.AStar._
 
 
 class AStarSpec extends FunSpec with Matchers {
@@ -66,18 +68,7 @@ class AStarSpec extends FunSpec with Matchers {
   }
 
   describe("AStar") {
-    describe("g(x)") {
-      pending
-    }
-    describe("h(x)") {
-      pending
-    }
-    describe("f(x)") {
-      pending
-    }
-
     describe("search") {
-      pending
       describe("finds the best path through valid words from a start word to a goal word") {
         it("given a start and goal that are the same") {
           AStar("smart", "smart").search should contain only "smart"
@@ -85,8 +76,12 @@ class AStarSpec extends FunSpec with Matchers {
         it("given a start and goal that are a single letter apart") {
           AStar("smart", "start").search should contain inOrderOnly("smart", "start")
         }
+        it("given a start and goal that are two letters apart") {
+          AStar("smart", "sears").search should contain inOrderOnly("smart", "start", "stars", "sears")
+        }
         it("given a start and goal that are a significant distance apart") {
-          AStar("smart", "brain").search should contain only("smart", "start", "stark", "stack", "slack", "black", "blank", "bland", "brand", "braid", "brain")
+          AStar("smart", "brain").search should contain inOrderOnly("smart", "start", "stars", "sears", "bears", "beans", "brans", "brand", "braid", "brain")
+          // Note! The dict I used let AStar find a shorter path than ("smart", "start", "stark", "stack", "slack", "black", "blank", "bland", "brand", "braid", "brain")
         }
       }
     }
